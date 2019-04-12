@@ -1,0 +1,22 @@
+{
+  "name": "be",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./bin/www",
+  "scripts": {
+    "start": "nodemon ./bin/www",
+    "mon": "node ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "hbs": "~4.0.1",
+    "http-errors": "^1.7.2",
+    "mongoose": "^5.5.1",
+    "mongoose-integer": "^0.1.1",
+    "morgan": "~1.9.0",
+    "nodemon": "^1.18.10",
+    "validator": "^10.11.0"
+  }
+}
