@@ -1,11 +1,17 @@
 
 const mongoose = require('mongoose');
 const validator = require("validator");
-var integerValidator = require('mongoose-integer');
+const integerValidator = require('mongoose-integer');
+const bcrypt = require('bcrypt');
 
+const jwt = require('jsonwebtoken');
+const util = require('util');
+const signPromise = util.promisify(jwt.sign)
+const verifyToken = util.promisify(jwt.verify)
 const Schema = mongoose.Schema;
-// const ObjectId = Schema.ObjectId;
 
+// const ObjectId = Schema.ObjectId;
+const saltRounds = 5; 
 
 const UserSchema = new Schema({
 
@@ -54,6 +60,45 @@ const UserSchema = new Schema({
 
    
 })
+
+ UserSchema.method('generateToken',function(){
+    const currentUser = this;
+    return signPromise({_id:currentUser._id},'secretKey',{
+         expiresIn:'2h'
+     })
+    
+ })
+
+ 
+ UserSchema.static('verifyToken',async function(token){
+    const userModel = this;
+    const decoded = await verifyToken(token,'secretKey')
+    const userId = decoded._id;
+    return userModel.findById(userId)
+ })
+
+UserSchema.method('verifyPassword',function(password){
+      const currentUser=this;
+
+      return bcrypt.compare(password,currentUser.password);
+  })
+
+
+
+UserSchema.pre('save',async function(){
+    const currentUser = this;
+    if(currentUser.isNew){
+        currentUser.password=await hashpassword(currentUser.password);
+        currentUser.confirmPassword=await hashpassword(currentUser.confirmPassword);
+
+        // currentUser.confirmPassword=await hashpassword(currentUser.confirmPassword);
+
+
+    }
+}
+)
+const hashpassword=(password)=>bcrypt.hash(password,saltRounds);
+
 
 UserSchema.plugin(integerValidator);
 const MyUserModel = mongoose.model('users', UserSchema);
